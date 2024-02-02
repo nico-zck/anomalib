@@ -11,7 +11,6 @@ from torch import nn
 from torch.nn import functional as F  # noqa: N812
 
 from anomalib.models.components import DynamicBufferModule, KCenterGreedy, TimmFeatureExtractor
-
 from .anomaly_map import AnomalyMapGenerator
 
 if TYPE_CHECKING:
@@ -33,12 +32,12 @@ class PatchcoreModel(DynamicBufferModule, nn.Module):
     """
 
     def __init__(
-        self,
-        input_size: tuple[int, int],
-        layers: Sequence[str],
-        backbone: str = "wide_resnet50_2",
-        pre_trained: bool = True,
-        num_neighbors: int = 9,
+            self,
+            input_size: tuple[int, int],
+            layers: Sequence[str],
+            backbone: str = "wide_resnet50_2",
+            pre_trained: bool = True,
+            num_neighbors: int = 9,
     ) -> None:
         super().__init__()
         self.tiler: Tiler | None = None
@@ -193,10 +192,10 @@ class PatchcoreModel(DynamicBufferModule, nn.Module):
         return patch_scores, locations
 
     def compute_anomaly_score(
-        self,
-        patch_scores: torch.Tensor,
-        locations: torch.Tensor,
-        embedding: torch.Tensor,
+            self,
+            patch_scores: torch.Tensor,
+            locations: torch.Tensor,
+            embedding: torch.Tensor,
     ) -> torch.Tensor:
         """Compute Image-Level Anomaly Score.
 
@@ -233,3 +232,10 @@ class PatchcoreModel(DynamicBufferModule, nn.Module):
         weights = (1 - F.softmax(distances.squeeze(1), 1))[..., 0]
         # 6. Apply the weight factor to the score
         return weights * score  # s in the paper
+
+    def state_dict(self, *args, **kwargs):
+        state_dict = super().state_dict(*args, **kwargs)
+        keys = [k for k, v in state_dict.items() if not isinstance(v, (torch.Tensor))]
+        for k in keys:
+            state_dict.pop(k)
+        return state_dict

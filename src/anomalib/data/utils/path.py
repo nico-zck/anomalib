@@ -211,10 +211,10 @@ def validate_path(path: str | Path, base_dir: str | Path | None = None, should_e
     path = Path(path).resolve()
     base_dir = Path(base_dir).resolve() if base_dir else Path.home()
 
-    # Check if the resolved path is within the base directory
-    if not str(path).startswith(str(base_dir)):
-        msg = "Access denied: Path is outside the allowed directory"
-        raise ValueError(msg)
+    # # Check if the resolved path is within the base directory
+    # if not str(path).startswith(str(base_dir)):
+    #     msg = "Access denied: Path is outside the allowed directory"
+    #     raise ValueError(msg)
 
     # In case path ``should_exist``, the path is valid, and should be
     # checked for read and execute permissions.

@@ -18,8 +18,8 @@ notebooks/500_use_cases/501_dobot/
 .toxbase
 
 # IDE
-.vscode
-.idea
+#.vscode
+#.idea
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
