@@ -6,14 +6,14 @@
 
 import torch
 from matplotlib.figure import Figure
-from torchmetrics import PrecisionRecallCurve
-from torchmetrics.functional import auc
+from torchmetrics.classification import BinaryPrecisionRecallCurve
+from torchmetrics.utilities.compute import auc
 from torchmetrics.utilities.data import dim_zero_cat
 
 from .plotting_utils import plot_figure
 
 
-class AUPR(PrecisionRecallCurve):
+class AUPR(BinaryPrecisionRecallCurve):
     """Area under the PR curve.
 
     This metric computes the area under the precision-recall curve.
@@ -86,8 +86,8 @@ class AUPR(PrecisionRecallCurve):
         prec, rec = self._compute()
         aupr = self.compute()
 
-        xlim = (0.0, 1.0)
-        ylim = (0.0, 1.0)
+        xlim = (-0.01, 1.01)
+        ylim = (-0.01, 1.01)
         xlabel = "Precision"
         ylabel = "Recall"
         loc = "best"

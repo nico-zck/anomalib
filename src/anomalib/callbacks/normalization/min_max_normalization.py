@@ -38,10 +38,10 @@ class _MinMaxNormalizationCallback(NormalizationCallback):
     def on_test_start(self, trainer: Trainer, pl_module: AnomalyModule) -> None:
         """Call when the test begins."""
         del trainer  # `trainer` variable is not used.
-
-        for metric in (pl_module.image_metrics, pl_module.pixel_metrics):
-            if metric is not None:
-                metric.set_threshold(0.5)
+        ### not need to manually set a threshold, because MinMax normalization cannot guarantee the optimal threshold is 0.5
+        # for metric in (pl_module.image_metrics, pl_module.pixel_metrics):
+        #     if metric is not None:
+        #         metric.set_threshold(0.5)
 
     def on_validation_batch_end(
         self,

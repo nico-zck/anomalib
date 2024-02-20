@@ -46,7 +46,7 @@ class Patchcore(MemoryBankMixin, AnomalyModule):
         layers: Sequence[str] = ("layer2", "layer3"),
         pre_trained: bool = True,
         coreset_sampling_ratio: float = 0.1,
-        num_neighbors: int = 9,
+        num_neighbors: int = None,
     ) -> None:
         super().__init__()
 

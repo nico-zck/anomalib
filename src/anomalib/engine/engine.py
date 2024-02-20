@@ -119,7 +119,7 @@ class Engine:
     def __init__(
         self,
         callbacks: list[Callback] | None = None,
-        normalization: NORMALIZATION = NormalizationMethod.MIN_MAX,
+        normalization: NORMALIZATION = NormalizationMethod.NONE,  ### disable normalization for prediction
         threshold: THRESHOLD = "F1AdaptiveThreshold",
         task: TaskType | str = TaskType.SEGMENTATION,
         image_metrics: str | list[str] | None = None,

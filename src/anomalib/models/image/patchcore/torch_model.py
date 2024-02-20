@@ -166,11 +166,12 @@ class PatchcoreModel(DynamicBufferModule, nn.Module):
         Returns:
             Matrix of distances between row vectors in x and y.
         """
+        dim_div = x.shape[-1] ** 0.5
         x_norm = x.pow(2).sum(dim=-1, keepdim=True)  # |x|
         y_norm = y.pow(2).sum(dim=-1, keepdim=True)  # |y|
         # row distance can be rewritten as sqrt(|x| - 2 * x @ y.T + |y|.T)
         res = x_norm - 2 * torch.matmul(x, y.transpose(-2, -1)) + y_norm.transpose(-2, -1)
-        return res.clamp_min_(0).sqrt_()
+        return res.clamp_min_(0).sqrt_().div_(dim_div)
 
     def nearest_neighbors(self, embedding: torch.Tensor, n_neighbors: int) -> tuple[torch.Tensor, torch.Tensor]:
         """Nearest Neighbours using brute force method and euclidean norm.
@@ -207,9 +208,15 @@ class PatchcoreModel(DynamicBufferModule, nn.Module):
         Returns:
             Tensor: Image-level anomaly scores
         """
+        ### using topk average as sample score
+        if self.num_neighbors is None:
+            dist, inds = patch_scores.topk(k=100, largest=True, dim=1)
+            return dist.mean(dim=1)
+
         # Don't need to compute weights if num_neighbors is 1
         if self.num_neighbors == 1:
-            return patch_scores.amax(1)
+            return patch_scores.amax(dim=1)
+
         batch_size, num_patches = patch_scores.shape
         # 1. Find the patch with the largest distance to it's nearest neighbor in each image
         max_patches = torch.argmax(patch_scores, dim=1)  # indices of m^test,* in the paper
@@ -224,7 +231,8 @@ class PatchcoreModel(DynamicBufferModule, nn.Module):
         memory_bank_effective_size = self.memory_bank.shape[0]  # edge case when memory bank is too small
         _, support_samples = self.nearest_neighbors(
             nn_sample,
-            n_neighbors=min(self.num_neighbors, memory_bank_effective_size),
+            # n_neighbors=min(self.num_neighbors, memory_bank_effective_size),
+            n_neighbors=self.num_neighbors,
         )
         # 4. Find the distance of the patch features to each of the support samples
         distances = self.euclidean_dist(max_patches_features.unsqueeze(1), self.memory_bank[support_samples])
@@ -233,9 +241,10 @@ class PatchcoreModel(DynamicBufferModule, nn.Module):
         # 6. Apply the weight factor to the score
         return weights * score  # s in the paper
 
-    def state_dict(self, *args, **kwargs):
-        state_dict = super().state_dict(*args, **kwargs)
-        keys = [k for k, v in state_dict.items() if not isinstance(v, (torch.Tensor))]
-        for k in keys:
-            state_dict.pop(k)
-        return state_dict
+    # def state_dict(self, *args, **kwargs):
+    #     state_dict = super().state_dict(*args, **kwargs)
+    #     if not self.training:
+    #         keys = [k for k, v in state_dict.items() if not isinstance(v, (torch.Tensor))]
+    #         for k in keys:
+    #             state_dict.pop(k)
+    #     return state_dict

@@ -45,7 +45,7 @@ class ManualThreshold(BaseThreshold):
     def __init__(self, default_value: float = 0.5, **kwargs) -> None:
         super().__init__(**kwargs)
         self.add_state("value", default=torch.tensor(default_value, dtype=torch.float64), persistent=True)
-        self.value = torch.tensor(default_value, dtype=torch.float64)
+        self.value = torch.tensor(default_value, dtype=torch.float64) - self.threshold_epsilon
 
     def compute(self) -> torch.Tensor:
         """Compute the threshold.

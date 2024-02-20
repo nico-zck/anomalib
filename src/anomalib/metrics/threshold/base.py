@@ -11,6 +11,7 @@ from torchmetrics import Metric
 
 class BaseThreshold(Metric, ABC):
     """Base class for thresholding metrics."""
+    threshold_epsilon = 1e-4  # Intentionally lowering the threshold slightly so that results above the threshold can be separated correctly
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)

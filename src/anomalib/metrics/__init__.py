@@ -16,6 +16,8 @@ from .anomaly_score_distribution import AnomalyScoreDistribution
 from .aupr import AUPR
 from .aupro import AUPRO
 from .auroc import AUROC
+from .audet import AUDET
+from .kill_rate import OverKill, MissKill
 from .collection import AnomalibMetricCollection
 from .min_max import MinMax
 from .pro import PRO
@@ -30,6 +32,9 @@ __all__ = [
     "ManualThreshold",
     "MinMax",
     "PRO",
+    "AUDET",
+    "OverKill",
+    "MissKill",
 ]
 
 logger = logging.getLogger(__name__)
@@ -54,9 +59,9 @@ def metric_collection_from_names(metric_names: list[str], prefix: str | None) ->
         if hasattr(metrics_module, metric_name):
             metric_cls = getattr(metrics_module, metric_name)
             metrics.add_metrics(metric_cls())
-        elif hasattr(torchmetrics, metric_name):
+        elif hasattr(torchmetrics.classification, metric_name):
             try:
-                metric_cls = getattr(torchmetrics, metric_name)
+                metric_cls = getattr(torchmetrics.classification, metric_name)
                 metrics.add_metrics(metric_cls())
             except TypeError:
                 msg = f"Incorrect constructor arguments for {metric_name} metric from TorchMetrics package."
@@ -155,8 +160,8 @@ def metric_collection_from_dicts(metrics: dict[str, dict[str, Any]], prefix: str
 
 
 def create_metric_collection(
-    metrics: list[str] | dict[str, dict[str, Any]],
-    prefix: str | None,
+        metrics: list[str] | dict[str, dict[str, Any]],
+        prefix: str | None,
 ) -> AnomalibMetricCollection:
     """Create a metric collection from a list of metric names or dictionaries.
 

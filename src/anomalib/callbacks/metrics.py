@@ -99,6 +99,10 @@ class _MetricsCallback(Callback):
                 pl_module.pixel_metrics = create_metric_collection(pixel_metric_names, "pixel_")
             self._set_threshold(pl_module)
 
+    def on_test_start(self, trainer: Trainer, pl_module: AnomalyModule, ) -> None:
+        super().on_test_start(trainer, pl_module)
+        self._set_threshold(pl_module)
+
     def on_validation_epoch_start(
         self,
         trainer: Trainer,

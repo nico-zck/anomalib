@@ -7,14 +7,15 @@
 import logging
 
 import torch
-from torchmetrics import PrecisionRecallCurve
+from torch import Tensor
+from torchmetrics.classification import BinaryPrecisionRecallCurve
 
 from .base import BaseThreshold
 
 logger = logging.getLogger(__name__)
 
 
-class F1AdaptiveThreshold(PrecisionRecallCurve, BaseThreshold):
+class F1AdaptiveThreshold(BinaryPrecisionRecallCurve, BaseThreshold):
     """Anomaly Score Threshold.
 
     This class computes/stores the threshold that determines the anomalous label
@@ -42,7 +43,7 @@ class F1AdaptiveThreshold(PrecisionRecallCurve, BaseThreshold):
     """
 
     def __init__(self, default_value: float = 0.5, **kwargs) -> None:
-        super().__init__(num_classes=1, **kwargs)
+        super().__init__(**kwargs)
 
         self.add_state("value", default=torch.tensor(default_value), persistent=True)
         self.value = torch.tensor(default_value)
@@ -74,9 +75,9 @@ class F1AdaptiveThreshold(PrecisionRecallCurve, BaseThreshold):
         if thresholds.dim() == 0:
             # special case where recall is 1.0 even for the highest threshold.
             # In this case 'thresholds' will be scalar.
-            self.value = thresholds
+            self.value = thresholds - self.threshold_epsilon
         else:
-            self.value = thresholds[torch.argmax(f1_score)]
+            self.value = thresholds[torch.argmax(f1_score)] - self.threshold_epsilon
         return self.value
 
     def __repr__(self) -> str:
@@ -86,3 +87,7 @@ class F1AdaptiveThreshold(PrecisionRecallCurve, BaseThreshold):
             str: String representation of the class.
         """
         return f"{super().__repr__()} (value={self.value:.2f})"
+
+    def update(self, preds: Tensor, target: Tensor) -> None:
+        assert preds.max() < 9 or preds.min() > -9, "BinaryPrecisionRecallCurve with Sigmoid will get overflowed predictions!"
+        super().update(preds.squeeze(), target.squeeze())

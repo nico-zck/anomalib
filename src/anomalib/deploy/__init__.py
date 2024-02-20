@@ -4,13 +4,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from .export import ExportType, export_to_onnx, export_to_openvino, export_to_torch
-from .inferencers import Inferencer, OpenVINOInferencer, TorchInferencer
+from .inferencers import Inferencer, OpenVINOInferencer, TorchInferencer, ONNXInferencer
 
 __all__ = [
     "ExportType",
     "Inferencer",
     "OpenVINOInferencer",
     "TorchInferencer",
+    "ONNXInferencer",
     "export_to_onnx",
     "export_to_openvino",
     "export_to_torch",

@@ -1,18 +1,21 @@
 """Implementation of AUROC metric based on TorchMetrics."""
+from typing import Optional, Tuple, Union
+
+import torch
+from matplotlib.figure import Figure
+from torch import Tensor
+from torchmetrics.classification import BinaryROC
+from torchmetrics.utilities.compute import auc
+from torchmetrics.utilities.plot import _AX_TYPE, _PLOT_OUT_TYPE
+
+from .plotting_utils import plot_figure
+
 
 # Copyright (C) 2022-2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
 
-import torch
-from matplotlib.figure import Figure
-from torchmetrics import ROC
-from torchmetrics.functional import auc
-
-from .plotting_utils import plot_figure
-
-
-class AUROC(ROC):
+class AUROC(BinaryROC):
     """Area under the ROC curve.
 
     Examples:
@@ -81,8 +84,8 @@ class AUROC(ROC):
         fpr, tpr = self._compute()
         auroc = self.compute()
 
-        xlim = (0.0, 1.0)
-        ylim = (0.0, 1.0)
+        xlim = (-0.01, 1.01)
+        ylim = (-0.01, 1.01)
         xlabel = "False Positive Rate"
         ylabel = "True Positive Rate"
         loc = "lower right"
@@ -100,3 +103,8 @@ class AUROC(ROC):
         )
 
         return fig, title
+
+    def plot(self, curve: Optional[Tuple[Tensor, Tensor, Tensor]] = None, score: Optional[Union[Tensor, bool]] = None,
+             ax: Optional[_AX_TYPE] = None) -> _PLOT_OUT_TYPE:
+        curve = super().compute()
+        return super().plot(curve, score, ax)

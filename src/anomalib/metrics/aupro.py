@@ -10,7 +10,7 @@ from typing import Any
 import torch
 from matplotlib.figure import Figure
 from torchmetrics import Metric
-from torchmetrics.functional import auc
+from torchmetrics.utilities.compute import auc
 from torchmetrics.functional.classification import binary_roc
 from torchmetrics.utilities.data import dim_zero_cat
 
@@ -258,7 +258,7 @@ class AUPRO(Metric):
         aupro = self.compute()
 
         xlim = (0.0, self.fpr_limit.detach_().cpu().numpy())
-        ylim = (0.0, 1.0)
+        ylim = (-0.01, 1.01)
         xlabel = "Global FPR"
         ylabel = "Averaged Per-Region TPR"
         loc = "lower right"
